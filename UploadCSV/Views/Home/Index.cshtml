@@ -1,0 +1,180 @@
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using System.Data;
+@model IzboriVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <style>
+        body {padding:3%;background:#fff}
+
+.panel-heading {
+    padding: 0
+}
+.panel-heading a {
+    display: block;
+    padding: 20px 10px;
+}
+.panel-heading a.collapsed {
+    background: #fff
+}
+.panel-heading a {
+    background: #f7f7f7;
+    border-radius: 5px;
+}
+.panel-heading a:after {
+    content: '-'
+}
+.panel-heading a.collapsed:after {
+    content: '+'
+}
+.nav.nav-tabs li a,
+.nav.nav-tabs li.active > a:hover,
+.nav.nav-tabs li.active > a:active,
+.nav.nav-tabs li.active > a:focus {
+    border-bottom-width: 0px;
+    outline: none;
+}
+.nav.nav-tabs li a {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.tab-pane {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-top: -1px;
+}
+
+
+    </style>
+</head>
+<body class="d-flex align-content-center">
+    <br />
+    <br />
+    <div class="col text-center">
+        <h1 class="display-2">Presidential election results</h1>
+    </div>
+    <br />
+    <br />
+    <form asp-controller="Home" asp-action="Index" method="post" enctype="multipart/form-data">
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <input type="file" name="postedFile" class="custom-file-input" placeholder="Csv File" />
+                <label class="custom-file-label">Choose a File...</label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col text-center">
+                <button type="submit" class="btn btn-primary" value="Import">Upload</button>
+            </div>
+        </div>
+
+
+
+    </form>
+
+    <hr />
+    @if (Model != null)
+    {
+        <div class="page-content page-container" id="page-content">
+            <div class="padding">
+                <div class="row container d-flex justify-content-center">
+                    <div class="col-sm-12">
+                        <div class="card p-3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="nav flex-column nav-pills nav-tabs sidebar-tabs" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                        <a class="nav-link" data-toggle="pill" href="#v-pills-@Model.IzborneJedinice[0].Replace(" ", string.Empty)" role="tab">@Model.IzborneJedinice[0].Replace(" ", string.Empty)</a>
+                                        <a class="nav-link" data-toggle="pill" href="#v-pills-@Model.IzborneJedinice[1].Replace(" ", string.Empty)" role="tab">@Model.IzborneJedinice[1].Replace(" ", string.Empty)</a>
+                                        <a class="nav-link" data-toggle="pill" href="#v-pills-@Model.IzborneJedinice[2].Replace(" ", string.Empty)" role="tab">@Model.IzborneJedinice[2].Replace(" ", string.Empty)</a>
+
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="tab-content" id="v-pills-tabContent">
+                                            @foreach (string izbJedinica in Model.IzborneJedinice)
+                                            {
+                                            <div class="tab-pane fade" id="v-pills-@izbJedinica.Replace(" ", string.Empty)" role="tabpanel" aria-labelledby="v-pills-@izbJedinica.Replace(" ", string.Empty)-tab">
+                                                <h4>@izbJedinica</h4>
+                                                <table border="0" cellpadding="0" cellspacing="0" class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Votes</th>
+                                                            <th>Percentage</th>
+                                                            <th>Error</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var rezultat in Model.rezultati.Where(x => x.IzbornaJedinica.Trim().ToLower() == izbJedinica.Trim().ToLower()).ToList())
+                                                        {
+                                                            <tr>
+                                                                <td>@rezultat.Kandidat</td>
+                                                                <td>@rezultat.BrojGlasova</td>
+                                                                <td>@rezultat.Procenat</td>
+                                                                <td>@rezultat.Error</td>
+
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                                
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+
+            </div>
+
+        </div>
+    }
+</body>
+</html>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.custom-file-input').on('change', function () {
+                var filename = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(filename);
+            })
+
+            // if the tabs are in a narrow column in a larger viewport
+            $('.sidebar-tabs').tabCollapse({
+                tabsClass: 'visible-tabs',
+                accordionClass: 'hidden-tabs'
+            });
+
+            // if the tabs are in wide columns on larger viewports
+            $('.content-tabs').tabCollapse();
+
+            // initialize tab function
+            $('.nav-tabs a').click(function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+            // slide to top of panel-group accordion
+            $('.panel-group').on('shown.bs.collapse', function () {
+                var panel = $(this).find('.in');
+                $('html, body').animate({
+                    scrollTop: panel.offset().top + (-60)
+                }, 500);
+            });
+        });
+
+
+    </script>
+}
